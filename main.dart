@@ -23,7 +23,7 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(),
+      home: MyHomePage(title: 'Flutter Demo Home Page'),
     );
   }
 }
@@ -44,24 +44,17 @@ class MyHomePage extends StatefulWidget {
 
   @override
   _MyHomePageState createState() => _MyHomePageState();
-
-
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-
   Map data;
   List userdata;
-
   Future getData() async{
-    http.Response response=await http.get("https://reqres.in/api/users?page=2");
+    http.Response response=await http.get("https://newsapi.org/v2/top-headlines?country=in&apiKey=dc9a30994bd5431488d9a5bab6644ffd");
     data=json.decode(response.body);
+    userdata=data["articles"];
+    print(userdata.toString());
 
-    setState(() {
-      userdata=data["data"];
-    });
 
   }
 
@@ -70,52 +63,48 @@ class _MyHomePageState extends State<MyHomePage> {
     // TODO: implement initState
     super.initState();
     getData();
-    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     return Scaffold(
       appBar: AppBar(
         // Here we take the value from the MyHomePage object that was created by
         // the App.build method, and use it to set our appbar title.
-        title: Text("Fake Friends"),
-        backgroundColor: Colors.green,
+        title: Text(widget.title),
       ),
+      body:Container(
+        padding: EdgeInsets.all(10.0),
+        child:ListView.builder(
+            itemCount: userdata== null ? 0 : userdata.length,
+            itemBuilder: (BuildContext context, int index){
+              return Container(
+                padding: EdgeInsets.all(20.0),
+                child: Card(
+                  child: Container(
+                    padding: EdgeInsets.all(20.0),
+                    child: Column(
+                      children: <Widget>[
+                        Image.network(
+                          userdata[index]['urlToImage'],
+                        ),
+                        SizedBox(
+                          height: 20.0,
+                        ),
+                        Text(
+                            "${userdata[index]['title']}"
+                        )
 
-
-        body: ListView.builder(
-            itemCount:  userdata==null ? 0   : userdata.length,itemBuilder: (BuildContext context, int index){
-              return Card(
-                child:Padding(
-                  padding: const EdgeInsets.all(10.0),
-
-                child: Row(
-                  children: <Widget>[
-                      CircleAvatar(
-                        backgroundImage: NetworkImage(userdata[index]["avatar"]),
-                      ),
-
-                    Text("${userdata[index]["first_name"]} ${userdata[index]["last_name"]}",
-                    style: TextStyle(
-
-                      fontSize: 20.0,
-                      fontWeight: FontWeight.w700,
+                      ],
                     ),
-                    )
-
-                  ],
-                )
-
-                ));
-        },
-
-        )
+                  )
+                ),
+              );
+            }
+        ) ,
+      )
+        
 
     );
   }
